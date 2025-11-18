@@ -1,4 +1,4 @@
-## Portfolio Pricer (Student Project)
+## Portfolio Pricer 
 
 A small but complete **portfolio pricing & analytics tool** built in Python.
 It ingests a simple holdings file, pulls **live market data** from Yahoo Finance,
@@ -14,8 +14,6 @@ Designed to be a clear, realistic project to showcase skills for **investment ba
 ---
 
 ### Install
-
-From the project root (`/Users/aybarskarahan/Documents/Projects/portfolio_pricer`):
 
 ```bash
 python -m venv .venv
@@ -109,27 +107,4 @@ pytest
 ```
 
 ---
-
-### How to talk about this on your CV / in interviews
-
-**Project title (CV)**  
-`Portfolio Pricing & Risk Analytics Tool (Python)`
-
-**Example bullet points:**
-
-- **Built** a Python tool that ingests portfolio holdings, fetches live market data (Yahoo Finance) and computes position-level and portfolio-level market value, cost basis and unrealized P&L.
-- **Implemented** portfolio analytics including position weights, contribution to total value, and basic risk metrics using historical return data and covariance-based portfolio volatility.
-- **Developed** both a command-line interface and a Streamlit dashboard, making the analysis accessible to non-technical users and demonstrating ability to explain financial outputs clearly.
-
-**Talking points for IB / consulting interviews:**
-
-- Emphasize how this replaces repetitive spreadsheet work with an automated process.
-- Walk through the logic step-by-step (inputs → data fetch → calculations → outputs).
-- Highlight how you separated concerns:
-  - data fetching (`data_fetch.py`)
-  - core model (`portfolio.py`, `analytics.py`)
-  - interfaces (`cli.py`, `streamlit_app.py`)
-  - tests & documentation.
-- Link the tool to real tasks: quick portfolio health-checks, scenario thinking and risk awareness.
-
 
