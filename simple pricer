@@ -1,0 +1,82 @@
+# Simple portfolio pricer (Python)
+
+
+
+import yfinance as yf
+import pandas as pd
+
+# Example portfolio: replace with your tickers, quantities, and avg costs
+portfolio = [
+    {"ticker": "AAPL", "quantity": 10, "avg_cost": 150.0},
+    {"ticker": "MSFT", "quantity": 5,  "avg_cost": 210.0},
+    {"ticker": "TSLA", "quantity": 2,  "avg_cost": 600.0},
+]
+
+# Fetch latest prices
+tickers = [p['ticker'] for p in portfolio]
+data = yf.download(tickers, period="1d", interval="1d", threads=True, progress=False)
+# for single-ticker, data['Close'] may be Series; normalize to DataFrame
+if isinstance(data['Close'], pd.Series):
+    prices = data['Close'].to_frame()
+else:
+    prices = data['Close']
+
+latest = {}
+for t in tickers:
+    latest_price = prices[t].iloc[-1]
+    latest[t] = latest_price
+
+# Build results
+rows = []
+total_value = 0.0
+total_cost = 0.0
+for p in portfolio:
+    t = p['ticker']
+    q = p['quantity']
+    cost = p['avg_cost'] * q
+    price = latest.get(t, float('nan'))
+    value = price * q
+    pl = value - cost
+    pl_pct = (pl / cost) * 100 if cost != 0 else None
+    rows.append({
+        "ticker": t,
+        "quantity": q,
+        "avg_cost": p['avg_cost'],
+        "price": price,
+        "market_value": value,
+        "cost_basis": cost,
+        "unrealized_pl": pl,
+        "unrealized_pl_pct": pl_pct
+    })
+    total_value += value
+    total_cost += cost
+
+df = pd.DataFrame(rows)
+df['weight_pct'] = (df['market_value'] / total_value) * 100
+
+summary = {
+    "total_market_value": total_value,
+    "total_cost_basis": total_cost,
+    "total_unrealized_pl": total_value - total_cost,
+    "total_unrealized_pl_pct": ((total_value - total_cost) / total_cost) * 100 if total_cost != 0 else None
+}
+
+# Show results
+print(df.sort_values("market_value", ascending=False).to_string(index=False))
+print("\nSummary:", summary)
+
+# Save to csv
+df.to_csv("portfolio_pricer_output.csv", index=False)
+
+import math
+from scipy.stats import norm
+
+def bs_price(S, K, r, sigma, T, option_type="call"):
+    # S = spot, K = strike, r = risk-free rate (decimal), sigma = vol, T = time to expiry (years)
+    d1 = (math.log(S/K) + (r + 0.5*sigma**2)*T) / (sigma * math.sqrt(T))
+    d2 = d1 - sigma * math.sqrt(T)
+    if option_type == "call":
+        return S * norm.cdf(d1) - K * math.exp(-r*T) * norm.cdf(d2)
+    else:
+        return K * math.exp(-r*T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+
